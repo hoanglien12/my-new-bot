@@ -7,35 +7,39 @@ use BotMan\BotMan\Messages\Incoming\Answer;
 use BotMan\BotMan\Messages\Outgoing\Question;
 use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 use App\Conversations\OrderConversation;
+use App\Conversations\FeedbackConversation;
+use App\Models\ProductCategory;
+use App\Models\Product;
+use BotMan\Drivers\Facebook\Extensions\Element;
+use BotMan\Drivers\Facebook\Extensions\ElementButton;
+use BotMan\Drivers\Facebook\Extensions\GenericTemplate;
 
 
 class SelectConversation extends Conversation
 {
 	public function questionSelect()
 	{
-		 $question = Question::create('Bạn muốn hỗ trợ về vấn đề gì?')
-            ->callbackId('select')
-            ->addButtons([
-                Button::create('Đặt hàng')->value('Đặt hàng'),
-                Button::create('Feedback')->value('Feedback'),
-                Button::create('Đơn hàng (Đơn hàng lỗi/đổi trả hàng)')->value('Đơn hàng (Đơn hàng lỗi/đổi trả hàng)'),
-            ]);
-
-        $this->ask($question, function(Answer $answer) {
-            if ($answer->isInteractiveMessageReply()) {
-                $this->bot->userStorage()->save([
-                    'select' => $answer->getValue(),
-                ]);
-                
-                if($this->bot->userStorage()->find('Đặt hàng')){
-                    // $this->say('đặt hàng');
-                    $this->bot->startConversation(new OrderConversation());
-                }
-                // $this->bot->startConversation(new InformationConversation());
-            }
-        });
-
-        
+        $this->bot->reply(GenericTemplate::create()
+            ->addImageAspectRatio(GenericTemplate::RATIO_SQUARE)
+            ->addElements([
+                Element::create('BotMan Documentation')
+                    ->subtitle('All about BotMan')
+                    ->image('http://botman.io/img/botman-body.png')
+                    ->addButton(ElementButton::create('visit')
+                        ->url('http://botman.io')
+                    )
+                    ->addButton(ElementButton::create('tell me more')
+                        ->payload('tell me more')
+                        ->type('postback')
+                    ),
+                Element::create('BotMan Laravel Starter')
+                    ->subtitle('This is the best way to start with Laravel and BotMan')
+                    ->image('http://botman.io/img/botman-body.png')
+                    ->addButton(ElementButton::create('tellmemore')
+                        ->url('https://github.com/mpociot/botman-laravel-starter')
+                    ),
+            ])
+        );
 	}
     /**
      * Start the conversation.
